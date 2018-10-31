@@ -36,6 +36,7 @@ function Node(name, descrip, type, maxEle, minEle, id, config, isOrdered, featur
     this.children = [];
     this.presence=undefined;
     this.withSuffix=false;
+    this.isleafRef=undefined;
 }
 
 Node.prototype.buildChild = function (att, type) {
@@ -54,13 +55,10 @@ Node.prototype.buildChild = function (att, type) {
          default:
          break;
          }*/
-        if(typeof att.type == "object"){
+        if(att.type && typeof att.type == "object"){
             if(att.type.name == "integer"){
                 att.type.name = "uint64";
             }
-        }
-
-        if(typeof att.type == "object"){
             if(att.type.name == "integer"){
                 if (att.bitLength) {
                     att.type.length = att.bitLength.replace(/[^0-9]/g, '');
@@ -88,20 +86,13 @@ Node.prototype.buildChild = function (att, type) {
             obj = new Node(att.name, att.description, att.nodeType, att['max-elements'], att['min-elements'], att.id, att.config, att.isOrdered, att.support, att.status, att.fileName);
             if (att.isUses) {
                 obj.buildUses(att);
-                //if (att.config) {
                 if (att.key) {
-                    if(att.key.length !== 0){
-                        //console.log("!");
-                    }
-                    if(obj.key.length !== 0){
-                        console.log("!");
-                    }
                     obj.key = att.key;
                     obj.keyid = att.keyid;
                 }
-                //}
             }
             obj.isGrouping = att.isGrouping;
+            obj.isleafRef = att.isleafRef;
             break;
         case "container":
             obj = new Node(att.name, att.description, att.nodeType, att['max-elements'], att['min-elements'], att.id, att.config,att.isOrdered, att.support, att.status, att.fileName);
@@ -218,9 +209,9 @@ Node.prototype.writeNode = function (layer) {
     }
     if(this.nodeType !== "enum" && this.nodeType !== "identity"  && this.nodeType !== "base" && this.nodeType !== "typedef") {
         var name = this.nodeType + " " + Util.yangifyName(this.name);
-    }else if(this.nodeType == "base" ){
-//        this.name+="-id";
-        var name = this.nodeType + " " + Util.typeifyName(this.name);
+    //}else if(this.nodeType == "base" ){
+        //this.name+="-id";
+        //var name = this.nodeType + " " + Util.typeifyName(this.name);
     }else{
         //this.name = this.name.replace(/\_+/g,'-');
         //keep literal names as they are in UML file
@@ -302,14 +293,21 @@ Node.prototype.writeNode = function (layer) {
                     }
                   }
                 }
-                Key = PRE + "\tkey '" + this.key.join(" ") + "';\r\n";
+
+                var myKey = [];
+                if(this.isleafRef == true){
+                    for(var i=0;i<this.key.length;i++){
+                        var myUses = this.uses.split(":");
+                        myKey[i]=Util.yangifyName(myUses[myUses.length-1].replace("ref",""))+this.key[i];
+                    }
+                    Key = PRE + "\tkey '" + myKey.join(" ") + "';\r\n";
+                }else{
+                    Key = PRE + "\tkey '" + this.key.join(" ") + "';\r\n";
+                }
             }
         }else{
             console.warn("Warning: There is no key in the node " + this.name + " in \'" + this.fileName + "\'!");
         }
-        /*if (typeof this.key=="string") {
-         Key = PRE + "\tkey '" + this.key + "';\r\n";
-         }*/
 
     } else {
         maxele = "";

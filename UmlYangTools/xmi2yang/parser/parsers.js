@@ -24,7 +24,7 @@ var yangModels = {
     Augment     : require('../model/yang/augment.js')
 };
 
-var config = {}
+var config = {};
 function setConfig(cfg){
     config = cfg;
 }
@@ -251,7 +251,7 @@ var parsers = {
 
         if(xmi.attributes()["xmi:type"] == "uml:Package" || xmi.attributes()["xmi:type"] == "uml:Interface") {
             if(xmi.attributes().name) {
-                props.mainmod = xmi.attributes().name
+                props.mainmod = xmi.attributes().name;
                 props.mainmod = props.mainmod.replace(/^[^A-Za-z0-9]+|[^A-Za-z0-9\d]+$/g, "");   //remove the special character in the end
                 props.mainmod = props.mainmod.replace(/[^\w\.-]+/g, '_');                     //not "A-Za-z0-9"->"_"
             } else {
@@ -317,7 +317,6 @@ var parsers = {
             props.comment = parsers.parseComment(xmi,store);
         }
 
-
         props.namespace = _.clone(config.namespace) + store.modName.join("-");
 
         props.pre = store.modName.join("-");
@@ -358,7 +357,7 @@ var parsers = {
         store.modName.pop();
     },
     createLifecycle:function(xmi,str,store){
-        creators     = require('./creators');
+        creators = require('./creators');
         return creators.createLifecycle(xmi,str,store);
     }
 };

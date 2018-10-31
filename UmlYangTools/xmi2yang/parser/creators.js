@@ -107,7 +107,8 @@ var creators = {
             name:undefined,
             id:undefined,
             type:undefined,
-            upperValue:undefined
+            upperValue:undefined,
+            memberEnd:obj.attributes()["memberEnd"]
         };
 
         for(var i=0; i < store.strictComposite.length; i++){
@@ -139,21 +140,27 @@ var creators = {
                 };
                 props.ele.upperValue ? forProps.upperValue = props.ele.upperValue.attributes().value : forProps.upperValue = "";
                 props.ele.lowerValue ? forProps.lowerValue = props.ele.lowerValue.attributes().value : forProps.lowerValue = "";
-                    for(var j = 0; j < store.association.length; j++){
-                        //if(forProps.name == store.association[j].name){
-                        if(forProps.id == store.association[j].id){
-                            break;
-                        }
+                for(var j = 0; j < store.association.length; j++){
+                    if(forProps.id == store.association[j].id){
+                        break;
                     }
+                }
 
-                    if(j == store.association.length){
-                        forProps.type = "list";
-                        //var a = new models.Association(forProps.name, forProps.id, forProps.type, forProps.upperValue, forProps.lowerValue);
-                        var a = new models.Association(forProps.name, forProps.id, forProps.type, forProps.upperValue, forProps.lowerValue, props.assoid, props.strictCom, props.extendedCom);
-                        store.association.push(a);
+                if(j == store.association.length){
+                    forProps.type = "list";
+                    var a = new models.Association(forProps.name, forProps.id, forProps.type, forProps.upperValue, forProps.lowerValue, props.assoid, props.strictCom, props.extendedCom);
+                    if(obj.ownedRule){
+                        var ownedRuleId = obj.ownedRule.attributes()['constrainedElement'];
                     }
+                    a.constraint = ownedRuleId;
+                    props.memberEnd = props.memberEnd.replace(forProps.id,"");
+                    props.memberEnd = props.memberEnd.replace(" ","");
+                    a.memberEnd = props.memberEnd;
+                    store.association.push(a);
+                }
             }
         }
+
     },
     createAbstraction:function(obj,param,store) {
         var id = obj.attributes()["xmi:id"];
