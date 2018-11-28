@@ -23,10 +23,11 @@ function Module(name, namespace, imp, pref, org, contact, revis, descrp, fileNam
     this.description = descrp;
     this.fileName = fileName;
     this.children = [];
+    this.augment = [];
 
 }
 
-Module.prototype.writeNode = function (layer) {
+Module.prototype.writeNode = function (store,layer) {
     var PRE = '';
     var k = layer;
     while (k-- > 0) {
@@ -133,6 +134,18 @@ Module.prototype.writeNode = function (layer) {
             st += this.children[i].writeNode(layer + 1);
         }
     }
+    var augment = "";
+    for(var aa = 0; aa < store.augment.length; aa++){
+        if(store.augment[aa].fileName === this.fileName){
+            if(!store.augment[aa].description){
+                store.augment[aa].description = "none";
+            }
+            store.augment[aa].client = store.augment[aa].client.replace(/-t$/g,"");
+            store.augment[aa].client = Util.typeifyName(store.augment[aa].client);
+            augment += "    augment \"" + store.augment[aa].supplier + "\"{\r" + "        uses " + store.augment[aa].client + ";\r" +
+                "        description \"" + store.augment[aa].description + "\";\r" +"    }\r";
+        }
+    }
     st = PRE + name + " {\r\n" +
         namespace +
         pref +
@@ -141,6 +154,7 @@ Module.prototype.writeNode = function (layer) {
         contact +
         description +
         revision_stmt +
+        augment+
         st + "}\r\n";
     return st;
 };

@@ -1,9 +1,12 @@
+var _         = require('lodash');
 var Util      = require('../model/yang/util');
+
 
 var yangModels = {
     Module      : require('../model/yang/module.js'),
     Package     : require('../model/yang/package.js'),
     Node        : require('../model/yang/node.js'),
+    Leaf        : require('../model/yang/leaf.js'),
     Abstraction : require('../model/yang/abstraction.js'),
     Feature     : require('../model/yang/feature.js'),
     RPC         : require('../model/yang/rpc.js'),
@@ -11,13 +14,13 @@ var yangModels = {
     Type        : require('../model/yang/type.js'),
     Augment     : require('../model/yang/augment.js')
 };
-
-var creators = require('../parser/creators.js')
+var ObjectClass = require('../model/ObjectClass.js');
+var creators = require('../parser/creators.js');
 
 module.exports = {
-    writeYang: function(obj) {
+    writeYang: function(store,obj) {
         var layer = 0;
-        var st = obj.writeNode(layer);
+        var st = obj.writeNode(store,layer);
         var res = st.replace(/\t/g, '    ');
         return res;
     },
@@ -195,7 +198,7 @@ module.exports = {
                                 ele[i].attribute[j]=null;
                                 break;
                             } else {
-                                ele[i].attribute[j].isleafRef = true;
+                                //ele[i].attribute[j].isleafRef = true;
                                 if (store.association[k].upperValue > 1 || store.association[k].upperValue == "*") {
                                     ele[i].attribute[j].nodeType == "leaf-list";
                                 } else {
@@ -245,7 +248,6 @@ module.exports = {
                             }
                         }
 
-
                         //deal with the subnode whose type is neither "Derived Types" nor "Build-in Type".
                         if (ele[i].attribute[j].isUses) {
                             var name = ele[i].attribute[j].type;
@@ -260,6 +262,7 @@ module.exports = {
                                         ele[i].attribute[j].isGrouping = true;
                                     }
                                     //recursion
+                                    ele[i].attribute[j].isUsesNo = k;
                                     ele[i].attribute[j].key = clazz.key;
                                     ele[i].attribute[j].keyid = clazz.keyid;
                                     ele[i].attribute[j].keyvalue = clazz.keyvalue;
@@ -274,10 +277,10 @@ module.exports = {
                                             ele[i].attribute[j].type = "string";
                                         }
                                         if (ele[i].attribute[j].nodeType == "list") {
-                                            ele[i].attribute[j].nodeType = "leaf-list";
+                                            //ele[i].attribute[j].nodeType = "leaf-list";
                                         }
                                         else if (ele[i].attribute[j].nodeType == "container") {
-                                            ele[i].attribute[j].nodeType = "leaf";
+                                            //ele[i].attribute[j].nodeType = "leaf";
                                         }
                                         break;
                                     }
@@ -290,10 +293,10 @@ module.exports = {
                                             }
 
                                             if (ele[i].attribute[j].nodeType === "list") {
-                                                ele[i].attribute[j].nodeType = "leaf-list";
+                                                //ele[i].attribute[j].nodeType = "leaf-list";
                                             }
                                             else if (ele[i].attribute[j].nodeType === "container") {
-                                                ele[i].attribute[j].nodeType = "leaf";
+                                                //ele[i].attribute[j].nodeType = "leaf";
                                             }
                                             break;
                                         }
@@ -353,8 +356,144 @@ module.exports = {
                                 }
                             }
                         }
+
+                        if(i == 0 && j == 0){
+                            for(var ii = 0; ii < ele.length; ii++){
+                                for(var jj = 0; jj < ele[ii].attribute.length; jj++) {
+                                    if(ele[ii].attribute[jj].nodeType == "list" || ele[ii].attribute[jj].nodeType == "container"){
+                                        for(var iii = 0; iii < ele.length; iii++){
+                                            if(ele[iii].id == ele[ii].attribute[jj].type){
+                                                ele[iii].isUsed.push(ii);
+                                                if(ele[ii].key.length > 0){
+                                                    ele[iii].isUsedRef.push(ii);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                         if(ele[i].key){
+
+                            //add uses of objectclasses
+                            if(ele[i].attribute[j].isleafRef == true){
+                                if(ele[i].fileName == clazz.fileName){
+                                    ele[i].attribute[j].isUses = clazz.name + "-ref";
+                                }else{
+                                    ele[i].attribute[j].isUses = clazz.fileName.replace(".uml","") + ":" + clazz.name + "-ref";
+                                }
+                            }else{
+                                if(ele[i].fileName == clazz.fileName){
+                                    ele[i].attribute[j].isUses = clazz.name;
+                                }else{
+                                    ele[i].attribute[j].isUses = clazz.fileName.replace(".uml","") + ":" + clazz.name;
+                                }
+                            }
+
+                             if(ele[i].attribute[j].isleafRef == true){
+                                 for(var ass = 0; ass < store.association.length; ass++){
+                                     if(ele[i].attribute[j].association == store.association[ass].assoid && store.association[ass].constraint != undefined){
+                                         //遍历所有在ref中的class和attributes，如果某个attribute的association等于该constraint，则为绑定
+                                         //寻找该assciation连接的两端，i为一段，isUsesNo为另一端
+                                     }
+                                 }
+                             }
+
+                            //add reference
+                            if(ele[i].key.length > 0 && j == 0){
+
+                                if(ele[i].isUsedRef.length == 0 || ele[i].isUsedRef.length == 1){
+                                    var newObj = new yangModels.Node(ele[i].name + '-ref', undefined, "grouping", undefined, undefined, obj.id + '_ref', undefined, undefined, undefined, undefined, ele[i].fileName);
+                                    for(var kk = 0; kk < ele[i].key.length; kk++){
+                                        var mypath = "";
+                                        var kpath = "";
+                                        for(var aa = 0; aa < store.augment.length; aa++){
+                                            var mystr = ele[i].instancePath.split("/");
+                                            mypath = mystr[0].substring(mystr[0].length - store.augment[aa].client.length);
+                                            if(mypath == store.augment[aa].client){
+                                                kpath = "path '" + store.augment[aa].supplier;
+                                                for(var mm = 1; mm < mystr.length; mm++){
+                                                    kpath = kpath + "/" + Util.yangifyName(mystr[mm]);
+                                                }
+                                            }
+                                        }
+                                        if(kpath == ""){
+                                            kpath = "path '" + "/" + Util.yangifyName(ele[i].instancePath);
+                                        }
+                                        var newType = new yangModels.Type("leafref", '', kpath, "", "", "", ele[i].fileName);
+                                        var newAtt = new yangModels.Leaf(ele[i].name + "-" + ele[i].key[kk], '', undefined, undefined, undefined, newType, undefined, undefined, ele[i].fileName);
+                                        newObj.children.push(newAtt);
+                                    }
+                                    if(ele[i].isUsedRef.length == 1){
+                                        newObj.uses.push(ele[ele[i].isUsedRef[0]].name + "-ref");
+                                    }
+                                    store.References.push(newObj);
+                                }
+
+                                if(ele[i].isUsedRef.length > 1){
+                                    var newObj = new yangModels.Node(ele[i].name + '-ref-1', undefined, "grouping", undefined, undefined, obj.id + '_ref', undefined, undefined, undefined, undefined, ele[i].fileName);
+                                    for(var kk = 0; kk < ele[i].key.length; kk++){
+                                        var mypath = "";
+                                        var kpath = "";
+                                        for(var aa = 0; aa < store.augment.length; aa++){
+                                            var mystr = ele[i].instancePath.split("/");
+                                            mypath = mystr[0].substring(mystr[0].length - store.augment[aa].client.length);
+                                            if(mypath == store.augment[aa].client){
+                                                kpath = "path '" + store.augment[aa].supplier;
+                                                for(var mm = 1; mm < mystr.length; mm++){
+                                                    kpath = kpath + "/" + Util.yangifyName(mystr[mm]);
+                                                }
+                                            }
+                                        }
+                                        if(kpath == ""){
+                                            kpath = "path '" + "/" + Util.yangifyName(ele[i].instancePath);
+                                        }
+                                        var newType = new yangModels.Type("leafref", '', kpath, "", "", "", ele[i].fileName);
+                                        var newAtt = new yangModels.Leaf(ele[i].name + "-" + ele[i].key[kk], '', undefined, undefined, undefined, newType, undefined, undefined, ele[i].fileName);
+                                        newObj.children.push(newAtt);
+                                    }
+                                    newObj.uses.push(ele[ele[i].isUsedRef[0]].name + "-ref");
+                                    store.References.push(newObj);
+
+                                    for(var k = 1; k < ele[i].isUsedRef.length; k++){
+                                        var newObj = new yangModels.Node(ele[i].name + '-ref-' + (k+1), undefined, "grouping", undefined, undefined, obj.id + '_ref', undefined, undefined, undefined, undefined, ele[i].fileName);
+                                        for(var kk = 0; kk < ele[i].key.length; kk++){
+                                            var mypath = "";
+                                            var kpath = "";
+                                            for(var aa = 0; aa < store.augment.length; aa++){
+                                                var mystr = ele[i].instancePath.split("/");
+                                                mypath = mystr[0].substring(mystr[0].length - store.augment[aa].client.length);
+                                                if(mypath == store.augment[aa].client){
+                                                    kpath = "path '" + store.augment[aa].supplier;
+                                                    for(var mm = 1; mm < mystr.length; mm++){
+                                                        kpath = kpath + "/" + Util.yangifyName(mystr[mm]);
+                                                    }
+                                                }
+                                            }
+                                            if(kpath == ""){
+                                                kpath = "path '" + "/" + Util.yangifyName(ele[i].instancePath);
+                                            }
+                                            var newType = new yangModels.Type("leafref", '', kpath, "", "", "", ele[i].fileName);
+                                            var newAtt = new yangModels.Leaf(ele[i].name + "-" + ele[i].key[kk], '', undefined, undefined, undefined, newType, undefined, undefined, ele[i].fileName);
+                                            newObj.children.push(newAtt);
+                                        }
+                                        newObj.uses.push(ele[ele[i].isUsedRef[k]].name + "-ref");
+                                        store.References.push(newObj);
+                                    }
+                                }
+
+                            }
+
+                        }
+
                         if (ele[i].attribute[j].isSpecTarget === false && ele[i].attribute[j].isSpecReference === false
                             && ele[i].attribute[j].isDefinedBySpec === false) {
+                            if(ele[i].attribute[j].nodeType == "list"){
+                                ele[i].attribute[j].key = clazz.key;
+                                ele[i].attribute[j].keyid = clazz.keyid;
+                                ele[i].attribute[j].keyvalue = clazz.keyvalue;
+                            }
                             obj.buildChild(ele[i].attribute[j], ele[i].attribute[j].nodeType);//create the subnode to obj
                         }
                     }

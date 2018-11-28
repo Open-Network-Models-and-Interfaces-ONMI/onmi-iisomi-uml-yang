@@ -36,6 +36,7 @@ function ownedAttribute(id, name, type, comment, assoc, isReadOnly, isOrdered, f
     this['min-elements'] = undefined;
     this['max-elements'] = undefined;
     this.fileName = fileName;
+    this.isUsesNo = -1;
 }
 
 ownedAttribute.prototype.giveValue = function(obj){

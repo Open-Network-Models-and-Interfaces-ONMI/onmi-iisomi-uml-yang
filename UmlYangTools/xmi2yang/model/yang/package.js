@@ -34,8 +34,13 @@ Package.prototype.writeNode = function (layer) {
         PRE += '\t';
     }
 
-    //var name = "container " + this.name;
-    var name = "/***********************\r\n* package " + this.name + "\r\n**********************/";
+    if(this.name.toLowerCase() === "definitionsofreferences") {
+        var name = "/*************************\r\n* definitions of references\r\n*************************/";//changed
+    }else if(this.name.toLowerCase() === "objectclasses"){
+        var name = "/***********************\r\n* package object-classes\r\n**********************/";//changed
+    }else{
+        var name = "/***********************\r\n* package " + this.name + "\r\n**********************/";
+    }
     name = name.replace(/\r\n/g, '\r\n' + PRE);
     var descript;
     if(!this.description){
@@ -75,11 +80,6 @@ Package.prototype.writeNode = function (layer) {
         //descript +
         "\r\n";
     return s;
-    /*var s = PRE + name + " {\r\n" +
-        children +
-        uses +
-        descript +
-        PRE + "}\r\n";
-    return s;*/
+
 };
 module.exports = Package;

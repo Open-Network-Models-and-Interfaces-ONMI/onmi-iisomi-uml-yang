@@ -16,6 +16,7 @@ var store = {
     abstraction:[],
     Class:[],
     Grouping:[],
+    References:[],
     Typedef:[],
     isInstantiated:[],
     Identity:[],
@@ -25,6 +26,7 @@ var store = {
     rootElement:[],
     generalization:[],
     augment:[]
+
 };
 
 var yangProcessors = require("../generator/yangprocessors"),
@@ -34,7 +36,7 @@ var processors   = require('./processors'),
     transformers = require('./transformers'),
     parsers      = require('./parsers'),
     creators     = require('./creators');
-
+var Package       = require('../model/yang/package.js');
 
 function setConfig(cfg){
     config = cfg;
@@ -282,6 +284,7 @@ function parseModule(file){
 }
 
 function buildResult(opts,cb){
+
     builders.buildGeneralization(store.Class, store);
 
     for(var i = 0; i < store.generalization.length; i++) {
@@ -296,7 +299,7 @@ function buildResult(opts,cb){
 
     builders.classspec(store.abstraction,config.withSuffix,store);
 
-    for(var i = 0; i < store.augment.length; i++){
+    /*for(var i = 0; i < store.augment.length; i++){
         var aug = store.augment[i];
         for(var  j = 0; j < store.yangModule.length; j++){
             var ym = store.yangModule[j];
@@ -304,7 +307,7 @@ function buildResult(opts,cb){
                 ym.children.push(aug);
             }
         }
-    }
+    }*/
 
     for(var i = 0; i < store.Identity.length; i++){
         var identity = store.Identity[i];
@@ -316,7 +319,7 @@ function buildResult(opts,cb){
         }
     }
 
-    for(var i = 0; i < store.Class.length; i++){
+    /*for(var i = 0; i < store.Class.length; i++){
         var path = store.Class[i].instancePath;
         for(var j = 0; j < store.augment.length; j++){
             if(store.augment[j].client === path.split('/')[0].split(":")[1] || store.augment[j].client === path.split('/')[0].split(":")[1] + '-g'){
@@ -327,9 +330,31 @@ function buildResult(opts,cb){
                 break;
             }
         }
-    }
+    }*/
 
     builders.obj2yang(store.Class, store, config);
+
+    for(var i = 0; i < store.References.length; i++) {
+        var reference = store.References[i];
+        for(var j = 0;j < store.packages.length; j++) {
+            var package = store.packages[j];
+            if(package.name == "DefinitionsOfReferences" && package.fileName === reference.fileName){
+                package.children.push(reference);
+                break;
+            }
+        }
+        if(j == store.packages.length) {
+            var temp = new Package("DefinitionsOfReferences", "_References_"+ reference.id, "", "",  reference.fileName);
+            temp.children.push(reference);
+            store.packages.push(temp);
+            for(var t = 0; t < store.yangModule.length; t++){
+                var ym = store.yangModule[t];
+                if(ym.fileName == reference.fileName){
+                    ym.children.unshift(temp);
+                }
+            }
+        }
+    }
 
     builders.crossRefer(store.yangModule, store);
 
@@ -338,7 +363,7 @@ function buildResult(opts,cb){
         if (ym.children.length > 0) {
             (function () {
                 try {
-                    var st = yangProcessors.writeYang(ym);//print the module to yang file
+                    var st = yangProcessors.writeYang(store,ym);//print the module to yang file
                     var path = opts.yangDir + "/" + ym.name + "@" + ym.revision[0].date + '.yang';
                     console.log("[parser] writing " + path);
                     fs.writeFile(path, st, function(error){

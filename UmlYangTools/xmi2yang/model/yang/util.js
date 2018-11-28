@@ -27,7 +27,6 @@ Util.yangifyName = function(str) {
         .replace( /-{2}/g, '-')
         .replace( /([0-9])\.-([0-9])/g, '$1.$2');
 };
-
 Util.typeifyName = function(str) {
     return str
         .replace( /([a-z])([A-Z])/g, '$1-$2' ) // insert dashes

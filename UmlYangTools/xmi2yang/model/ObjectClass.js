@@ -13,6 +13,7 @@
 var Type = require("./yang/type.js");
 var Attribute = require("./OwnedAttribute.js");
 var Node = require('./yang/node.js');
+var Util=require('./yang/util.js');
 
 function Class(name, id, type, comment, nodeType, path, config, isOrdered, fileName){
     this.name = name;
@@ -37,7 +38,9 @@ function Class(name, id, type, comment, nodeType, path, config, isOrdered, fileN
     this.attribute = [];
     this.key = [];
     this.keyid = [];
-    this.keyvalue=[];
+    this.keyvalue = [];
+    this.isUsed = [];
+    this.isUsedRef = [];
     
 }
 Class.prototype.isEnum = function(){
@@ -118,6 +121,9 @@ Class.prototype.buildIdentityref = function(obj) {
     var node = new Type("identityref");
     node.fileName = this.fileName;
     var name=this.name.replace(/-t$/g,"");
+    name=Util.typeifyName(name);
+    name=name.replace(/-/g,"_");
+    name=name.toUpperCase();
     var INode = new Node(name,undefined, "base");
     INode.fileName = this.fileName;
     node.children.push(INode);

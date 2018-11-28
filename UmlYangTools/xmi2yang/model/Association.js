@@ -12,13 +12,15 @@
  ****************************************************************************************************/
 function association(name, id, nodetype, upperValue, lowerValue,assoid,strictCom,extendedCom){
     this.name = name;
-    this.nodeType = nodetype;
     this.id = id;
+    this.nodeType = nodetype;
     this.upperValue = upperValue;
     this.lowerValue = lowerValue;
     this.assoid=assoid;
     this.strictCom=strictCom;
     this.extendedCom=extendedCom;
+    this.constraint=undefined;
+    this.memberEnd=undefined;
 }
 module.exports = association;
 
