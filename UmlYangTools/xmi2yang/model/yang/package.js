@@ -34,12 +34,49 @@ Package.prototype.writeNode = function (layer) {
         PRE += '\t';
     }
 
+    if(this.name.toLowerCase() === "typedefinitions"){
+        var name1 = "/****************************************\r\n* typedef statements\r\n**************************************/";
+        var name2 = "/*********************************************\r\n* grouping statements for complex data types\r\n*******************************************/";
+
+        var mychildren1 = new Array();
+        var mychildren2 = new Array();
+        var children1 = "";
+        var children2 = "";
+
+        for (var i = 0; i < this.children.length; i++) {
+            if(this.children[i].nodeType == "typedef"){
+                mychildren1.push(this.children[i]);
+            }else{
+                mychildren2.push(this.children[i]);
+            }
+        }
+
+        if (mychildren1) {
+            mychildren1.map(function(child) {
+                children1 += child.writeNode(layer + 1);
+            });
+        }
+        if (mychildren2) {
+            mychildren2.map(function(child) {
+                children2 += child.writeNode(layer + 1);
+            });
+        }
+
+        var s = Util.yangifyName(name1) + " \r\n" +
+            children1 +
+            "\r\n" +
+            Util.yangifyName(name2) + " \r\n" +
+            children2 +
+            "\r\n";
+        return s;
+    }
+
     if(this.name.toLowerCase() === "definitionsofreferences") {
-        var name = "/*************************\r\n* definitions of references\r\n*************************/";//changed
+        var name = "/********************************************\r\n* grouping statements for object references\r\n********************************************/";//changed
     }else if(this.name.toLowerCase() === "objectclasses"){
-        var name = "/***********************\r\n* package object-classes\r\n**********************/";//changed
+        var name = "/****************************************\r\n* grouping statements for object classes\r\n**************************************/";//changed
     }else{
-        var name = "/***********************\r\n* package " + this.name + "\r\n**********************/";
+        var name = "/****************************************\r\n* package " + this.name + "\r\n**************************************/";
     }
     name = name.replace(/\r\n/g, '\r\n' + PRE);
     var descript;

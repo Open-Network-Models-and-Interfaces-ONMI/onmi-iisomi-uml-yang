@@ -421,6 +421,7 @@ module.exports = {
                                         if(kpath == ""){
                                             kpath = "path '" + "/" + Util.yangifyName(ele[i].instancePath);
                                         }
+                                        kpath += "'";
                                         var newType = new yangModels.Type("leafref", '', kpath, "", "", "", ele[i].fileName);
                                         var newAtt = new yangModels.Leaf(ele[i].name + "-" + ele[i].key[kk], '', undefined, undefined, undefined, newType, undefined, undefined, ele[i].fileName);
                                         newObj.children.push(newAtt);
@@ -449,6 +450,7 @@ module.exports = {
                                         if(kpath == ""){
                                             kpath = "path '" + "/" + Util.yangifyName(ele[i].instancePath);
                                         }
+                                        kpath += "'";
                                         var newType = new yangModels.Type("leafref", '', kpath, "", "", "", ele[i].fileName);
                                         var newAtt = new yangModels.Leaf(ele[i].name + "-" + ele[i].key[kk], '', undefined, undefined, undefined, newType, undefined, undefined, ele[i].fileName);
                                         newObj.children.push(newAtt);
@@ -474,6 +476,7 @@ module.exports = {
                                             if(kpath == ""){
                                                 kpath = "path '" + "/" + Util.yangifyName(ele[i].instancePath);
                                             }
+                                            kpath += "'";
                                             var newType = new yangModels.Type("leafref", '', kpath, "", "", "", ele[i].fileName);
                                             var newAtt = new yangModels.Leaf(ele[i].name + "-" + ele[i].key[kk], '', undefined, undefined, undefined, newType, undefined, undefined, ele[i].fileName);
                                             newObj.children.push(newAtt);
@@ -510,7 +513,31 @@ module.exports = {
             }
             //create "rpc"
             if(ele[i].nodeType === "rpc"){
+
                 for (var j = 0; j < ele[i].attribute.length; j++) {
+
+                    if(ele[i].attribute[j].nodeType == "list" || ele[i].attribute[j].nodeType == "container"){
+                        for (var k = 0; k < store.Class.length; k++) {
+                            var rpcclazz = store.Class[k];
+
+                            if (rpcclazz.id == ele[i].attribute[j].type) {
+                                ele[i].attribute[j].isAbstract = rpcclazz.isAbstract;
+
+                                if (rpcclazz.type !== "Class") {
+                                    ele[i].attribute[j].isleafRef = false;
+                                    ele[i].attribute[j].isGrouping = true;
+                                }
+
+                                ele[i].attribute[j].isUsesNo = k;
+                                ele[i].attribute[j].key = rpcclazz.key;
+                                ele[i].attribute[j].keyid = rpcclazz.keyid;
+                                ele[i].attribute[j].keyvalue = rpcclazz.keyvalue;
+
+                            }
+                        }
+
+                    }
+
                     var pValue = ele[i].attribute[j];
                     for(var k = 0; k < store.Typedef.length; k++){
                         var typeDef = store.Typedef[k];
@@ -720,12 +747,15 @@ module.exports = {
 
             var tempPath;
             for(var t = 0; t < store.packages.length; t++) {
+
                 var package = store.packages[t];
+
                 if (package.path === "") {
                     tempPath = package.name;
                 } else {
                     tempPath = package.path + "-" + package.name
                 }
+
                 if (tempPath === ele[i].path && package.fileName === ele[i].fileName) {
                     //create a new node if "ele" needs to be instantiate
                     if (ele[i].nodeType === "notification" ||rootFlag==1) {
