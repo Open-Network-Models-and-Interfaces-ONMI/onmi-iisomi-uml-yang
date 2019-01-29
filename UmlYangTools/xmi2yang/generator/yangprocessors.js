@@ -249,12 +249,13 @@ module.exports = {
                         }
 
                         //deal with the subnode whose type is neither "Derived Types" nor "Build-in Type".
+                        var clazz = null;
                         if (ele[i].attribute[j].isUses) {
                             var name = ele[i].attribute[j].type;
 
                             //find the "class" whose value of "id" is value of "type"
                             for (var k = 0; k < store.Class.length; k++) {
-                                var clazz = store.Class[k];
+                                clazz = store.Class[k];
                                 if (clazz.id == name) {
                                     ele[i].attribute[j].isAbstract = clazz.isAbstract;
                                     if (clazz.type !== "Class") {
@@ -374,10 +375,10 @@ module.exports = {
                             }
                         }
 
-                         if(ele[i].key){
+                         if(ele[i].key && clazz){
 
                             //add uses of objectclasses
-                            if(ele[i].attribute[j].isleafRef == true){
+                            if(ele[i].attribute[j].isleafRef == true ){
                                 if(ele[i].fileName == clazz.fileName){
                                     ele[i].attribute[j].isUses = clazz.name + "-ref";
                                 }else{
