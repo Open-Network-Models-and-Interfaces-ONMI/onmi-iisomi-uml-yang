@@ -146,6 +146,10 @@ var creators = {
                     }
                 }
 
+                if (j == 55) {
+                    console.log("Warning!");
+                }
+
                 if(j == store.association.length){
                     forProps.type = "list";
                     var a = new models.Association(forProps.name, forProps.id, forProps.type, forProps.upperValue, forProps.lowerValue, props.assoid, props.strictCom, props.extendedCom);
@@ -153,10 +157,14 @@ var creators = {
                         var ownedRuleId = obj.ownedRule.attributes()['constrainedElement'];
                     }
                     a.constraint = ownedRuleId;
-                    props.memberEnd = props.memberEnd.replace(forProps.id,"");
-                    props.memberEnd = props.memberEnd.replace(" ","");
-                    a.memberEnd = props.memberEnd;
-                    store.association.push(a);
+                    //添加props.memberEnd判断
+                    if (props.memberEnd) {
+                        props.memberEnd = props.memberEnd.replace(forProps.id,"");
+                        props.memberEnd = props.memberEnd.replace(" ","");
+                        a.memberEnd = props.memberEnd;
+                        store.association.push(a);
+                    }
+
                 }
             }
         }
