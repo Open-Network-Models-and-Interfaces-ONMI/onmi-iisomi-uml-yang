@@ -177,9 +177,8 @@ var parsers = {
 
         if(xmi.attributes()["target"]){
             props.target = xmi.attributes()["target"];
-        }else if(xmi["target"]){
-            //修改text()为text
-            props.target=xmi["target"].text;
+        }else if(xmi["target"] && xmi["target"].text){ //添加判断条件xmi["target"].text
+            props.target=xmi["target"].text();
         }
         var tempspec = new models.Specify(props.id,props.target,currentFilename);
         store.specify.push(tempspec);
