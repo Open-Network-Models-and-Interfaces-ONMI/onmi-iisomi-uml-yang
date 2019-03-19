@@ -6,5 +6,4 @@ function Specify(id, target,fileName){
     this.target=target;
     this.fileName = fileName;
 }
-
 module.exports = Specify;

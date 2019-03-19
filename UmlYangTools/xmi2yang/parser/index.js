@@ -308,6 +308,15 @@ function buildResult(opts,cb){
             }
         }
     }*/
+    for(var i = 0; i < store.augment.length; i++){
+        var aug = store.augment[i];
+        for(var  j = 0; j < store.yangModule.length; j++){
+            var ym = store.yangModule[j];
+            if(aug.fileName == ym.fileName){
+                ym.children.push(aug);
+            }
+        }
+    }
 
     for(var i = 0; i < store.Identity.length; i++){
         var identity = store.Identity[i];
@@ -331,6 +340,18 @@ function buildResult(opts,cb){
             }
         }
     }*/
+    for(var i = 0; i < store.Class.length; i++){
+        var path = store.Class[i].instancePath;
+        for(var j = 0; j < store.augment.length; j++){
+            if(store.augment[j].client === path.split('/')[0].split(":")[1] || store.augment[j].client === path.split('/')[0].split(":")[1] + '-g'){
+                if(store.Class.instancePathFlag !== false){
+                    store.Class.instancePathFlag = true; // [sko] shall it be " = " only?
+                }
+                store.Class[i].instancePath = path.replace(path.split('/')[0], store.augment[j].supplier);
+                break;
+            }
+        }
+    }
 
     builders.obj2yang(store.Class, store, config);
 
