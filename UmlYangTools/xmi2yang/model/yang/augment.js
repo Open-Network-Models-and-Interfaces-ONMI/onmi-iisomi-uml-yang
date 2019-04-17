@@ -79,14 +79,15 @@ Augment.prototype.writeNode = function (layer){
                     break;
             }
         }
-        uses = PRE + "\tuses " + this.client +  ";\r\n";
+        uses = PRE + "\tcontainer " + this.client + " {\r\n            uses " + this.client +  ";\r\n";
     }
 
-    uses=PRE +"\tuses "+this.client+ ";\r\n";
+    uses=PRE + "\tcontainer " + this.client + " {\r\n            uses "+this.client+ ";\r\n";
 
     var s;
     s = PRE + name + " {\r\n" +
         Util.yangifyName(uses) +
+         "\t" +description + "        }\r\n" +
         description + "\t}\r\n";
     return s;
 };

@@ -42,4 +42,10 @@ Util.typeifyName = function(str) {
         .replace( /([0-9])\.-([0-9])/g, '$1.$2');
 };
 
+Util.identityfyName = function(str) {
+    return Util.typeifyName(str)
+        .replace(/-/g,"_")
+        .toUpperCase();
+};
+
 module.exports = Util;

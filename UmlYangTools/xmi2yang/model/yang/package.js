@@ -35,7 +35,7 @@ Package.prototype.writeNode = function (layer) {
     }
 
     //var name = "container " + this.name;
-    var name = "/***********************\r\n* package " + this.name + "\r\n**********************/";
+    var name = "/**************************\r\n* package " + this.name + "\r\n**************************/";
     name = name.replace(/\r\n/g, '\r\n' + PRE);
     var descript;
     if(!this.description){
@@ -62,7 +62,7 @@ Package.prototype.writeNode = function (layer) {
 
         }
         this.children.map(function(child) {
-            children += child.writeNode(layer + 1);
+            children += child.writeNode(layer);
         });
     }
     var uses = "";

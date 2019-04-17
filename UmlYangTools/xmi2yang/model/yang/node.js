@@ -220,7 +220,7 @@ Node.prototype.writeNode = function (layer) {
         var name = this.nodeType + " " + Util.yangifyName(this.name);
     }else if(this.nodeType == "base" ){
 //        this.name+="-id";
-        var name = this.nodeType + " " + Util.typeifyName(this.name);
+        var name = this.nodeType + " " + Util.identityfyName(this.name);
     }else{
         //this.name = this.name.replace(/\_+/g,'-');
         //keep literal names as they are in UML file

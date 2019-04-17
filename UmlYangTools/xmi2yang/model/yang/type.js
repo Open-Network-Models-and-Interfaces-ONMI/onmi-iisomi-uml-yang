@@ -85,16 +85,23 @@ type.prototype.writeNode = function (layer) {
     var p = /int[0-9]/;
     if(p.test(this.name)){
         var name = "type " + this.name;
-    }else{
+    }
+    else if (this.name === 'real') {
+       	var name = "type decimal64";
+    }
+    else {
         var name = "type " + Util.typeifyName(this.name);
     }
    /* if (this.name !== "enumeration") {
         name += ";";
     }*/
     var s = "";
-    if(this.path || this.range || this.length || this.children.length){
+    if(this.path || this.range || this.length || this.children.length || this.name === 'real'){
         s = " {\r\n";
         var regex  = /[^0-9/./*]/;
+        if(this.name === 'real') {
+        	s += PRE + "    fraction-digits 7;\r\n";
+        }
         if(this.range){
             /*if(regex.test(this.range) == true){
                 if(this.range.indexOf('*') !== -1){

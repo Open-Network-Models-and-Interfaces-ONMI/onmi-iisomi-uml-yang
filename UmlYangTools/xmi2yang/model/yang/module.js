@@ -20,7 +20,7 @@ function Module(name, namespace, imp, pref, org, contact, revis, descrp, fileNam
     this.organization = org;
     this.contact = contact;
     this.revision = revis;
-    this.description = descrp;
+    this.description = descrp + "\r\n         - The TAPI YANG models included in this TAPI release are a *normative* part of the TAPI SDK.\r\n- The YANG specifications have been generated from the corresponding UML model using the [ONF EAGLE UML2YANG mapping tool]\r\n             <https://github.com/OpenNetworkingFoundation/EagleUmlYang>\r\n             and further edited manually to comply with the [ONF IISOMI UML2YANG mapping guidelines]\r\n             <https://wiki.opennetworking.org/display/OIMT/UML+-+YANG+Guidelines>\r\n         - Status of YANG model artifacts can be determined by referring to the corresponding UML artifacts.\r\n             As described in the UML models, some artifacts are considered *experimental*, and thus the corresponding YANG artifacts.\r\n         - The ONF TAPI release process does not guarantee backward compatibility of YANG models across major versions of TAPI releases.\r\n             The YANG model backward compatibility criteria are outlined in section 11 of <https://tools.ietf.org/html/rfc7950>.\r\n             YANG models included in this release may not be backward compatible with previous TAPI releases.";
     this.fileName = fileName;
     this.children = [];
 
