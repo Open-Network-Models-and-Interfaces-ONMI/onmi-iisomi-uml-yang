@@ -1,13 +1,13 @@
-# EAGLE
+# UML to YANG Mapping
 
-Project **EAGLE**: OpenSourceSDN Repository for the **Informal Inter-SDO Open Model Initiative (IISOMI)** and contains all the documents and code that the **ONF Information Model Project (IMP)** has open sourced.
+This repository defines the mapping of a UML information model to YANG.<br>
 
-The following are the list of tools (Note: Guidelines and documentation are contained in the corresponding directory):
+> [!NOTE]
+> Prerequisites:
+> * the UML information model has to be written in [Papyrus](https://eclipse.dev/papyrus/)
+> * the UML Profiles defined in [onmi-iisomi-uml-common](https://github.com/Open-Network-Models-and-Interfaces-ONMI/onmi-iisomi-uml-common) are applied to the UML information model
+> * the UML information model has been defined according to the UML Modelling Guidelines ${\textsf{\color{red}(add link)}}$
 
-   1. [Server Generator for Python Tools](./JsonCodeTools)
-   2. [Open Model Profile](./OpenModelProfile)
-   3. [CIM Pruning & Refactoring Tools](./UmlTools)
-   4. [Papyrus UML to Yang Gneration Tool](./UmlYangTools)
-   5. [Yang to Swagger JSON/RestConf Generation Tool](./YangJsonTools)
-  
-Note: Related [EAGLE Community](https://community.opensourcesdn.org/wg/EAGLE/dashboard)
+The repository contains:
+* the UML to YANG Mapping Guidelines ${\textsf{\color{red}(add link)}}$
+* the UML to YANG Mapping Tool ${\textsf{\color{red}(add link)}}$
