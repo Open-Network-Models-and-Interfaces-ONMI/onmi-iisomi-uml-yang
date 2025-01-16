@@ -9,5 +9,5 @@ This repository defines the mapping of a UML information model to YANG.<br>
 > * the UML information model has been defined according to the UML Modelling Guidelines ${\textsf{\color{red}(add link)}}$
 
 The repository contains:
-* the UML to YANG Mapping Guidelines ${\textsf{\color{red}(add link)}}$
-* the UML to YANG Mapping Tool ${\textsf{\color{red}(add link)}}$
+* the UML to YANG Mapping Guidelines: [UmlYangMappingGuidelines](https://github.com/Open-Network-Models-and-Interfaces-ONMI/iisomi-uml-yang/tree/ToolChain/UmlYangMappingGuidelines)
+* the UML to YANG Mapping Tool: [UmlYangTools](https://github.com/Open-Network-Models-and-Interfaces-ONMI/iisomi-uml-yang/tree/ToolChain/UmlYangTools)
